@@ -40,7 +40,7 @@ int  main()
 #endif
 
     
-    for(int index_i = 0;index_i < 10;index_i ++){
+    for(int index_i = 10;index_i < 11;index_i ++){
         struct ssd_info *ssd;
         ssd=(struct ssd_info*)malloc(sizeof(struct ssd_info));
         alloc_assert(ssd,"ssd");
@@ -86,11 +86,14 @@ int  main()
         case 9:
             strncpy(ssd->tracefilename,"./workloads/rsrch/rsrch_1.csv",45);
             strncpy(ssd->statisticfilename,"rsrch_1.dat",16);
+        case 10:
+            strncpy(ssd->tracefilename,"./workloads/unzip/proj_1.csv",45);
+            strncpy(ssd->statisticfilename,"proj_1.dat",16);
         default:
             break;
         }
     ssd=initiation(ssd);
-
+    printf("***************************%s*******************\n",ssd->statisticfilename);
     for (i=0;i<ssd->parameter->channel_number;i++)
     {
         for(t=0;t < ssd->parameter->chip_channel[0];t++){
@@ -141,7 +144,7 @@ int  main()
     /*	free_all_node(ssd);*/
 
     printf("\n");
-    printf("the simulation is completed!\n");
+    printf("the %s simulation is completed!\n",ssd->statisticfilename);
 
     for (i=0;i<ssd->parameter->channel_number;i++)
     {
@@ -222,14 +225,8 @@ struct ssd_info *simulate(struct ssd_info *ssd)
             }		
         }
         sq++;
-        sub1 = ssd->channel_head[0].subs_r_head;
-        if(sq == 27803756){
-            printf("here 27803756\n");
-        }
         process(ssd);    
-        sub1 = ssd->channel_head[0].subs_r_head;
         trace_output(ssd);
-        sub1 = ssd->channel_head[0].subs_r_head;
         // printf("%d\n",t++);
         if(flag == 0 && ssd->request_queue == NULL)
             flag = 100;
@@ -442,9 +439,7 @@ struct ssd_info *buffer_management(struct ssd_info *ssd)
     new_request=ssd->request_tail;
     lsn=new_request->lsn;
     lpn=new_request->lsn/ssd->parameter->subpage_page;
-    if(lpn == 1583729184){
-        printf("lpn 1583729184 location is NULL\n");
-    }
+    
     last_lpn=(new_request->lsn+new_request->size-1)/ssd->parameter->subpage_page;
     first_lpn=new_request->lsn/ssd->parameter->subpage_page;
     int capacity = sizeof(unsigned int)*((last_lpn-first_lpn+1)*ssd->parameter->subpage_page/32+1);
@@ -1067,14 +1062,14 @@ void statistic_output(struct ssd_info *ssd)
     fprintf(ssd->statisticfile,"total request average response time: %llu\n",(ssd->write_avg + ssd->read_avg)/(ssd->write_request_count + ssd->read_request_count));
     fprintf(ssd->statisticfile,"tail latency: %llu\n",ssd->tail_latency);
     fprintf(ssd->statisticfile,"---------------------------Space utilization rate---------------------------\n");
-    fprintf(ssd->statisticfile,"real written pagenums: %d\n",ssd->free_invalid);
+    fprintf(ssd->statisticfile,"free page: %d\n",ssd->free_invalid);
     fprintf(ssd->statisticfile,"---------------------------WA---------------------------\n");
     fprintf(ssd->statisticfile,"Write amplification: %f\n",(float)ssd->real_written/ssd->total_write);
     fprintf(ssd->statisticfile,"buffer read hits: %13d\n",ssd->dram->buffer->read_hit);
     fprintf(ssd->statisticfile,"buffer read miss: %13d\n",ssd->dram->buffer->read_miss_hit);
     fprintf(ssd->statisticfile,"buffer write hits: %13d\n",ssd->dram->buffer->write_hit);
     fprintf(ssd->statisticfile,"buffer write miss: %13d\n",ssd->dram->buffer->write_miss_hit);
-    fprintf(ssd->statisticfile,"erase: %13d\n",erase);
+    fprintf(ssd->statisticfile,"erase: %13d\n",ssd->erase_count);
     unsigned int page_num = ssd->parameter->page_block*ssd->parameter->block_plane*ssd->parameter->plane_die*ssd->parameter->die_chip*ssd->parameter->chip_num * BITS_PER_CELL;
     unsigned int read_array[10],prog_array[10];
     unsigned int totalnum =0;
@@ -1087,9 +1082,6 @@ void statistic_output(struct ssd_info *ssd)
             totalnum++;
             int read_count = ssd->dram->map->map_entry[i].read_count;
             int prog_count = ssd->dram->map->map_entry[i].write_count;
-            if(prog_count == 0){
-                printf("here\n");
-            }
             if(read_count < 10){
                 read_array[read_count]++;
             }else{

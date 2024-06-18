@@ -100,51 +100,51 @@ the 1 channel, 1 die, 0 plane, 2048 blocks has :             0 erase operations
 the 1 channel, 1 die, 1 plane, 2048 blocks has :             0 erase operations
 ---------------------------latency array distribute---------------------------
 total latency num is 1030245
-0.923384
-0.024596
-0.013830
-0.007540
-0.005086
-0.009630
-0.007948
-0.004675
-0.001601
-0.001711
+0.922846
+0.024220
+0.013964
+0.008451
+0.005147
+0.009680
+0.008099
+0.004286
+0.001593
+0.001713
 
 
 ---------------------------static data---------------------------
 min lsn:             0
 max lsn: 4200979456
-read count:        461246
+read count:        459515
 program count:       4543233
 ---------------------------read & program sub rate---------------------------
 total program sub:       3726062
-total read sub:        717866
-read rate: 0.161539
-program rate: 0.838461
+total read sub:        718498
+read rate: 0.161658
+program rate: 0.838342
 ---------------------------read & program request rate---------------------------
 read request count:        176729
 write request count:       1381085
 read request rate: 0.113447
 write request rate: 0.886553
-read request average size:     16.207222
-write request average size:     14.185596
+read request average size:     16.207266
+write request average size:     14.185593
 ---------------------------read & program & total & tail latency---------------------------
-read request average response time: 195301513
-write request average response time: 37463174
-total request average response time: 55369427
-tail latency: 2638031776
+read request average response time: 200681732
+write request average response time: 38273425
+total request average response time: 56698127
+tail latency: 2681325676
 ---------------------------Space utilization rate---------------------------
-real written pagenums: 0
+free page: 0
 ---------------------------WA---------------------------
-Write amplification: 1.059839
+Write amplification: 1.000000
 buffer read hits:         10593
 buffer read miss:            18
 buffer write hits:       5047182
 buffer write miss:      10655963
 erase:             0
 Read 0: count is 0.841044
-Read 1: count is 0.091036
+Read 1: count is 0.091037
 Read 2: count is 0.026853
 Read 3: count is 0.015120
 Read 4: count is 0.010568
@@ -164,7 +164,7 @@ Write 7: count is 0.030921
 Write 8: count is 0.021998
 Write 9: count is 0.048184
 READ
-650264
+650263
 70386
 20762
 11690
@@ -176,7 +176,7 @@ READ
 3873
 WRITE
 0
-415001
+415000
 97618
 59444
 48986

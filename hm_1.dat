@@ -100,22 +100,22 @@ the 1 channel, 1 die, 0 plane, 2048 blocks has :             0 erase operations
 the 1 channel, 1 die, 1 plane, 2048 blocks has :             0 erase operations
 ---------------------------latency array distribute---------------------------
 total latency num is 591082
-0.809331
-0.032872
-0.023976
-0.020572
-0.019500
-0.019627
-0.025917
-0.018530
-0.019229
-0.010445
+0.810348
+0.032791
+0.024457
+0.020495
+0.019119
+0.019474
+0.025621
+0.018175
+0.019170
+0.010351
 
 
 ---------------------------static data---------------------------
 min lsn:             0
 max lsn: 3223916544
-read count:       2679908
+read count:       2679714
 program count:       4854461
 ---------------------------read & program sub rate---------------------------
 total program sub:        261900
@@ -128,23 +128,23 @@ write request count:         28415
 read request rate: 0.953365
 write request rate: 0.046635
 read request average size:     29.850313
-write request average size:     39.916119
+write request average size:     39.915947
 ---------------------------read & program & total & tail latency---------------------------
-read request average response time: 1488723625
-write request average response time: 63111840
-total request average response time: 1422240730
-tail latency: 14817625276
+read request average response time: 1528665541
+write request average response time: 66032876
+total request average response time: 1460456191
+tail latency: 15348742526
 ---------------------------Space utilization rate---------------------------
-real written pagenums: 0
+free page: 61
 ---------------------------WA---------------------------
-Write amplification: 1.387931
+Write amplification: 1.000000
 buffer read hits:        224824
 buffer read miss:             0
 buffer write hits:         89089
 buffer write miss:        973722
 erase:             0
-Read 0: count is 0.675392
-Read 1: count is 0.141162
+Read 0: count is 0.675387
+Read 1: count is 0.141167
 Read 2: count is 0.039900
 Read 3: count is 0.025398
 Read 4: count is 0.015011
@@ -164,8 +164,8 @@ Write 7: count is 0.011393
 Write 8: count is 0.003217
 Write 9: count is 0.010869
 READ
-124905
-26106
+124904
+26107
 7379
 4697
 2776

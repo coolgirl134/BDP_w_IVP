@@ -100,51 +100,51 @@ the 1 channel, 1 die, 0 plane, 2048 blocks has :             0 erase operations
 the 1 channel, 1 die, 1 plane, 2048 blocks has :             0 erase operations
 ---------------------------latency array distribute---------------------------
 total latency num is 1003323
-0.946571
-0.019513
-0.012192
-0.010363
-0.004231
-0.002263
-0.001548
-0.001243
-0.001172
-0.000904
+0.945816
+0.018317
+0.012972
+0.010431
+0.004500
+0.002688
+0.001733
+0.001274
+0.001277
+0.000992
 
 
 ---------------------------static data---------------------------
 min lsn:             0
 max lsn: 4294909952
-read count:        299487
+read count:        299164
 program count:       5349378
 ---------------------------read & program sub rate---------------------------
 total program sub:       4527161
-total read sub:        729053
-read rate: 0.138703
-program rate: 0.861297
+total read sub:        729057
+read rate: 0.138704
+program rate: 0.861296
 ---------------------------read & program request rate---------------------------
 read request count:        133625
 write request count:       1300030
 read request rate: 0.093206
 write request rate: 0.906794
-read request average size:     21.842775
+read request average size:     21.842661
 write request average size:     17.451653
 ---------------------------read & program & total & tail latency---------------------------
-read request average response time: 155068052
-write request average response time: 4683733
-total request average response time: 18700428
-tail latency: 1491430571
+read request average response time: 163342132
+write request average response time: 5347139
+total request average response time: 20073193
+tail latency: 1539114252
 ---------------------------Space utilization rate---------------------------
-real written pagenums: 0
+free page: 0
 ---------------------------WA---------------------------
-Write amplification: 1.019799
+Write amplification: 1.000000
 buffer read hits:          3004
 buffer read miss:            12
 buffer write hits:       4692301
 buffer write miss:      15491053
 erase:             0
-Read 0: count is 0.945169
-Read 1: count is 0.027362
+Read 0: count is 0.945171
+Read 1: count is 0.027361
 Read 2: count is 0.003666
 Read 3: count is 0.003173
 Read 4: count is 0.000674
@@ -154,7 +154,7 @@ Read 7: count is 0.004090
 Read 8: count is 0.001072
 Read 9: count is 0.012664
 Write 0: count is 0.000000
-Write 1: count is 0.271566
+Write 1: count is 0.271565
 Write 2: count is 0.102577
 Write 3: count is 0.119022
 Write 4: count is 0.126283
@@ -165,7 +165,7 @@ Write 8: count is 0.038037
 Write 9: count is 0.079283
 READ
 597588
-17300
+17299
 2318
 2006
 426
@@ -176,7 +176,7 @@ READ
 8007
 WRITE
 0
-171699
+171698
 64855
 75252
 79843

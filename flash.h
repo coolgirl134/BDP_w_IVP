@@ -33,7 +33,7 @@ struct ssd_info *compute_serve_time(struct ssd_info *ssd,unsigned int channel,un
 int get_ppn_for_advanced_commands(struct ssd_info *ssd,unsigned int channel,unsigned int chip,struct sub_request * * subs ,unsigned int subs_count,unsigned int command);
 int get_ppn_for_normal_command(struct ssd_info * ssd, unsigned int channel,unsigned int chip,struct sub_request * sub);
 struct ssd_info *dynamic_advanced_process(struct ssd_info *ssd,unsigned int channel,unsigned int chip);
-
+void make_invalid(struct ssd_info* ssd,int plane,int type);
 struct sub_request *find_two_plane_page(struct ssd_info *, struct sub_request *);
 struct sub_request *find_interleave_read_page(struct ssd_info *, struct sub_request *);
 int find_twoplane_write_sub_request(struct ssd_info * ssd, unsigned int channel, struct sub_request * sub_twoplane_one,struct sub_request * sub_twoplane_two);

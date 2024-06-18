@@ -102,14 +102,14 @@ the 1 channel, 1 die, 1 plane, 2048 blocks has :             0 erase operations
 total latency num is 12199
 0.834003
 0.031806
-0.025412
-0.026150
+0.025494
+0.026068
 0.025986
-0.015821
-0.017051
+0.015903
+0.016969
 0.010903
-0.005656
-0.007214
+0.005738
+0.007132
 
 
 ---------------------------static data---------------------------
@@ -130,14 +130,14 @@ write request rate: 0.996952
 read request average size:     26.280788
 write request average size:     24.333382
 ---------------------------read & program & total & tail latency---------------------------
-read request average response time: 56732860
-write request average response time: 9620956
-total request average response time: 9764548
-tail latency: 142130728
+read request average response time: 56814949
+write request average response time: 9620386
+total request average response time: 9764231
+tail latency: 142162340
 ---------------------------Space utilization rate---------------------------
 real written pagenums: 0
 ---------------------------WA---------------------------
-Write amplification: 1.003718
+Write amplification: 1.000000
 buffer read hits:             0
 buffer read miss:             0
 buffer write hits:         12824

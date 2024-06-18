@@ -129,8 +129,8 @@ typedef int Status;
 #define HOTPROG 8
 #define COLD 2
 
-#define P_LC 0
-#define P_MT 1
+#define R_LC 0
+#define R_MT 1
 
 #define BITS_PER_CELL 4
 
