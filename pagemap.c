@@ -880,7 +880,9 @@ struct ssd_info *get_ppn_for_2_write(struct ssd_info *ssd,unsigned int channel,u
     if(sub->bit_type == R_MT){
         // 表示要么是存在无效编程，要么是PLC满了，不得不RMT，要进一步判断,是否这个plane存在block有invalid lc
         active_block = find_first_bit(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].block_bitmap,ssd->parameter->block_plane);
-        if()
+        if(active_block < ssd->parameter->block_plane){
+            
+        }
     }
 
     unsigned int i=0,j=0,k=0,l=0,m=0,n=0;
