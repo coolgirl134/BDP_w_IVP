@@ -1179,7 +1179,7 @@ int typeofdata(struct ssd_info* ssd,unsigned int lpn){
         return R_LC;
     }else if(ssd->dram->map->map_entry[lpn].read_count > HOTREAD && ssd->dram->map->map_entry[lpn].write_count > HOTPROG){
         // 热读热写
-        return P_LC;
+        return R_MT;
     }else if(ssd->dram->map->map_entry[lpn].read_count <= HOTREAD && ssd->dram->map->map_entry[lpn].write_count <= HOTPROG){
         // 冷读冷写
         return P_MT;

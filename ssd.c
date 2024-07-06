@@ -94,7 +94,8 @@ int  main()
             break;
         }
     ssd=initiation(ssd);
-    printf("***************************Reverse_TSP*******************\n");
+    printf("***************************BDP with invalid*******************\n");
+    fprintf(ssd->statisticfile,"\n***************************BDP with invalid*******************\n");
     printf("***************************%s*******************\n",ssd->statisticfilename);
     for (i=0;i<ssd->parameter->channel_number;i++)
     {
