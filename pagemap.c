@@ -777,9 +777,29 @@ void process_2_write(struct ssd_info* ssd,int channel,int chip,int die,int plane
 
         ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].page_head[location->page].valid_state=0;             /*表示某一页失效，同时标记valid和free状态都为0*/
         ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].page_head[location->page].free_state=0;              /*表示某一页失效，同时标记valid和free状态都为0*/
-        // if(ppn == 1048829){
-        //     printf("here ppn is 7524562\n");
-        // }
+        // 记录无效LC的位置
+        int msb;
+        int cell = location->page / BITS_PER_CELL;
+        int plane_index = location->die * ssd->parameter->plane_die + location->plane;
+        if(location->page  % BITS_PER_CELL == LSB_PAGE){
+            msb = location->page + 2;
+            if(ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].page_head[location->page + 1].valid_state==0){
+                if(ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].page_head[msb].lpn == NONE){
+                    SET_BIT(ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].LC_bitmap,cell);
+                    SET_BIT(ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].block_bitmap,location->block);
+                    SET_BIT(ssd->channel_head[location->channel].chip_head[location->chip].plane_bitmap,plane_index);
+                }
+            }
+        }else if(location->page % BITS_PER_CELL == CSB_PAGE){
+            msb = location->page + 1;
+            if(ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].page_head[location->page - 1].valid_state==0){
+                if(ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].page_head[msb].lpn == NONE){
+                    SET_BIT(ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].LC_bitmap,cell);
+                    SET_BIT(ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].block_bitmap,location->block);
+                    SET_BIT(ssd->channel_head[location->channel].chip_head[location->chip].plane_bitmap,plane_index);
+                }
+            }
+        }
         ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].page_head[location->page].lpn=0;
         ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].invalid_page_num++;
 
@@ -856,6 +876,12 @@ struct ssd_info *get_ppn_for_2_write(struct ssd_info *ssd,unsigned int channel,u
     struct local *location;
     struct gc_operation *gc_node;
     int type = sub->bit_type;
+
+    if(sub->bit_type == R_MT){
+        // 表示要么是存在无效编程，要么是PLC满了，不得不RMT，要进一步判断,是否这个plane存在block有invalid lc
+        active_block = find_first_bit(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].block_bitmap,ssd->parameter->block_plane);
+        if()
+    }
 
     unsigned int i=0,j=0,k=0,l=0,m=0,n=0;
 

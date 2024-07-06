@@ -2234,6 +2234,16 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
     for(int i = 0;i < 4;i ++){
         index[i] = NONE;
     }
+    // 当类型为RMT时，先判断当前chip是否有plane存在无效的LC page，如果是，则直接返回
+    if(sub->bit_type == R_MT){
+        int plane_new = find_first_bit(ssd->channel_head[channel].chip_head[chip_token].plane_bitmap,plane_chip);
+        if(plane_new < plane_chip){
+            return plane_new;
+        }else{
+            // 如果找不到无效LC的plane，则修改类型为PLC
+            sub->bit_type = P_LC;
+        }
+    }
     
     // 这里遍历四个plane，如果找到对应的类型的plane，直接推出
     for(int i = 0;i < plane_chip;i ++){
