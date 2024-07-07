@@ -374,8 +374,9 @@ struct plane_info{
     unsigned int free_MT;
     // 记录当前plane四种类型的page是否满
     bitchunk_t bitmap_type[1];
-    bitchunk_t block_bitmap[256];           //记录每个块是否有invalid的LC
+    bitchunk_t block_bitmap[BITCHUNKS(2048)];           //记录每个块是否有invalid的LC
     unsigned int free_page_num[4];          //记录每种类型的page剩余多少数量，以cell为单位，因为一次需要两页编程
+    bitchunk_t cell_bitmap[BITCHUNKS(2048*64)];          //记录plane中所有反向编程的块cell的LC是否被编程，为1表示MT可以被编程，当找不到1的时候表示RMTFULL
 };
 
 
@@ -386,7 +387,7 @@ struct blk_info{
     int last_write_page;               //记录最近一次写操作执�?�的页数,-1表示该块没有一页�??写过
     struct page_info *page_head;       //记录每一子页的状�??
     int program_type;                   //记录当前块的编程方式，默认新块为NONE
-    bitchunk_t LC_bitmap[8];
+    bitchunk_t LC_bitmap[BITCHUNKS(64)];            //记录无效LC的位置
     int LCMT_number[2];                 //记录当前块�?�应的bit类型到达的cell number，刚开始为NONE
 };
 

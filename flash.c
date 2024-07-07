@@ -2250,6 +2250,13 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
         struct local* loc = get_loc_by_plane(ssd,find_plane);
         for(int j_type = 0;j_type < BITS_PER_CELL;j_type++){
             if(GET_BIT(ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].bitmap_type,j_type) == 0){
+                if(j_type == R_MT){
+                    // 这里是检验是否当RMTfull时我剩余的MT位置还有
+                    if(find_first_bit(ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].cell_bitmap,ssd->parameter->page_block * ssd->parameter->block_plane) == 0){
+                        printf("error in here find RMT plane\n");
+                        while(1){}
+                    }
+                }
                 index[j_type] = find_plane;
                 if(j_type == sub->bit_type){
                     flag = SUCCESS;
@@ -2391,6 +2398,9 @@ Status services_2_write(struct ssd_info * ssd,unsigned int channel,unsigned int 
 
                             // 这里的作用是找到已完成update请求的读操作，并将其从总请求队列中移除并插入到channel上待处理请求队列中
                             sub=find_write_sub_request(ssd,channel,NONE);
+                            if(sub->lpn == 107523){
+                                printf("here to check why block is error\n");
+                            }
                             if(sub==NULL)
                             {
                                 break;
@@ -2426,7 +2436,12 @@ Status services_2_write(struct ssd_info * ssd,unsigned int channel,unsigned int 
                                         break;
                                     }
                                 } 
-
+                                if(sub->lpn == 799744 || (sub_other!=NULL && sub_other->lpn == 799744)){
+                                    printf("here to check why ppn not same\n");
+                                }
+                                if(sub->lpn == 1500162 || (sub_other!=NULL && sub_other->lpn == 1500162)){
+                                    printf("here to check why ppn not same\n");
+                                }
                             if(sub->current_state==SR_WAIT)
                             {
                                 find_plane = get_plane_new(ssd,channel,chip_token,sub);
