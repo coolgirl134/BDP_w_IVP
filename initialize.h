@@ -283,6 +283,9 @@ struct ssd_info{
     FILE * statisticfile;
     FILE * statisticfile2;
 
+    struct sub_request *to_move_sub_head;
+    struct sub_request *to_move_sub_tail;
+
     struct parameter_value *parameter;   //SSD参数因子
     struct dram_info *dram;
     struct request *request_queue;       //dynamic request queue
@@ -375,7 +378,7 @@ struct plane_info{
     // 记录当前plane四种类型的page是否满
     bitchunk_t bitmap_type[1];
     bitchunk_t block_bitmap[BITCHUNKS(2048)];           //记录每个块是否有invalid的LC
-    unsigned int free_page_num[4];          //记录每种类型的page剩余多少数量，以cell为单位，因为一次需要两页编程
+    int free_page_num[4];          //记录每种类型的page剩余多少数量，以cell为单位，因为一次需要两页编程
     bitchunk_t cell_bitmap[BITCHUNKS(2048*64)];          //记录plane中所有反向编程的块cell的LC是否被编程，为1表示MT可以被编程，当找不到1的时候表示RMTFULL
 };
 

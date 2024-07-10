@@ -705,10 +705,10 @@ Status find_open_block(struct ssd_info *ssd,unsigned int channel,unsigned int ch
         }else if(type == TSB_PAGE){
             ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[P_MT]--;
         }
-        if(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[P_LC]==0){
+        if(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[P_LC]<=0){
             SET_BIT(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].bitmap_type,P_LC);
         }
-        if(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[P_MT]==0){
+        if(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[P_MT]<=0){
             SET_BIT(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].bitmap_type,P_MT);
         }
         
@@ -1174,12 +1174,12 @@ Status write_page(struct ssd_info *ssd,unsigned int channel,unsigned int chip,un
 }
 
 int typeofdata(struct ssd_info* ssd,unsigned int lpn){
-    if(ssd->dram->map->map_entry[lpn].read_count <= HOTPROG && ssd->dram->map->map_entry[lpn].write_count > HOTPROG){
+    if(ssd->dram->map->map_entry[lpn].write_count > HOTPROG){
         // 冷读热写
         return R_LC;
-    }else if(ssd->dram->map->map_entry[lpn].read_count > HOTREAD && ssd->dram->map->map_entry[lpn].write_count > HOTPROG){
+    }else if(ssd->dram->map->map_entry[lpn].read_count > HOTREAD){
         // 热读热写
-        return R_MT;
+        return P_LC;
     }else if(ssd->dram->map->map_entry[lpn].read_count <= HOTREAD && ssd->dram->map->map_entry[lpn].write_count <= HOTPROG){
         // 冷读冷写
         return P_MT;
@@ -1956,7 +1956,7 @@ Status copy_back(struct ssd_info * ssd, unsigned int channel, unsigned int chip,
 
 int get_prog_time(struct ssd_info* ssd,int type,unsigned int ppn,int flag){
     if(flag == 1){
-        return 1000000;
+        return 750000;
     }else{
         struct local* loc = find_location(ssd,ppn);
         int channel = loc->channel;
@@ -2206,7 +2206,9 @@ void process_invalid(struct ssd_info* ssd,int plane){
     }
     ssd->real_written-=2;
     int cell;
-    cell = ++(ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].blk_head[block].LCMT_number[R_LC]);
+    cell = ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].blk_head[block].LCMT_number[LC] + 1;
+    ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].blk_head[block].LCMT_number[LC] = cell;
+
     if(cell > 63){
         printf("cell bigger than 63\n");
     }
@@ -2214,6 +2216,7 @@ void process_invalid(struct ssd_info* ssd,int plane){
     ssd->erase_count1+=2;
     make_invalid(ssd,loc->channel,loc->chip,loc->die,loc->plane,block,page);
     make_invalid(ssd,loc->channel,loc->chip,loc->die,loc->plane,block,page + 1);
+
     ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].free_page-=2;
     free(loc);
     loc = NULL;
@@ -2227,17 +2230,21 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
     int end = channel*plane_channel + plane_chip * (chip_token + 1);
     int flag = FAILURE;
     int find_plane = NONE;
+    int i_RMT = 4;
     // 这里表示随机产生一个planeindex，避免都集中都某个plane中进行写操作
     find_plane = ssd->total_write%plane_chip + start;
     static int type_bit = NONE;
-    int index[4];
-    for(int i = 0;i < 4;i ++){
+    int index[5];
+    int plane_new;
+    int block_new;
+    for(int i = 0;i < 5;i ++){
         index[i] = NONE;
     }
     // 当类型为RMT时，先判断当前chip是否有plane存在无效的LC page，如果是，则直接返回
     if(sub->bit_type == R_MT){
-        int plane_new = find_first_bit(ssd->channel_head[channel].chip_head[chip_token].plane_bitmap,plane_chip);
+        plane_new = find_first_bit(ssd->channel_head[channel].chip_head[chip_token].plane_bitmap,plane_chip);
         if(plane_new < plane_chip){
+            plane_new = channel * plane_channel + chip_token * plane_chip + plane_new;
             return plane_new;
         }else{
             // 如果找不到无效LC的plane，则修改类型为PLC
@@ -2251,13 +2258,23 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
         for(int j_type = 0;j_type < BITS_PER_CELL;j_type++){
             if(GET_BIT(ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].bitmap_type,j_type) == 0){
                 if(j_type == R_MT){
-                    // 这里是检验是否当RMTfull时我剩余的MT位置还有
-                    if(find_first_bit(ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].cell_bitmap,ssd->parameter->page_block * ssd->parameter->block_plane) == 0){
-                        printf("error in here find RMT plane\n");
-                        while(1){}
+                    // 判断是否有无效的MT位置
+                    block_new = find_first_bit(ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].block_bitmap,ssd->parameter->block_plane);
+                    if(block_new < ssd->parameter->block_plane){
+                        index[i_RMT] = find_plane;
                     }
+                    // 这里是检验是否当RMTfull时我剩余的MT位置还有
+                    // if(find_first_bit(ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].cell_bitmap,ssd->parameter->page_block * ssd->parameter->block_plane) < ssd->parameter->page_block*ssd->parameter->block_plane){
+                    //     printf("error in here find RMT plane\n");
+                    //     while(1){}
+                    // }
                 }
-                index[j_type] = find_plane;
+                if(ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].free_page_num[j_type] > 0){
+                    index[j_type] = find_plane;
+                }else{
+                    SET_BIT(ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].bitmap_type,j_type);
+                }
+                
                 if(j_type == sub->bit_type){
                     flag = SUCCESS;
                     break;
@@ -2272,7 +2289,9 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
         find_plane = (find_plane + 1) % plane_chip + start; 
     }
     if(flag == SUCCESS){
-        return index[sub->bit_type];
+        if(sub->bit_type == R_MT && index[i_RMT] !=NONE)
+            return index[i_RMT];
+        else return index[sub->bit_type];
     }else{
         int type_new = NONE;
  
@@ -2290,11 +2309,14 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
             }
         }else if(sub->bit_type == P_LC){
             if(ssd->dram->map->map_entry[sub->lpn].read_count > ssd->dram->map->map_entry[sub->lpn].write_count){
-                if(index[R_MT] != NONE){
-                    type_new = R_MT;
+                if(index[i_RMT] != NONE){
+                    type_new = i_RMT;
                 }else if(index[R_LC]!=NONE){
                     type_new = R_LC;
-                }else if(index[P_MT]!=NONE){
+                }else if(index[R_MT]!=NONE){
+                    type_new = R_MT;
+                }
+                else if(index[P_MT]!=NONE){
                     type_new = P_MT;
                 }else{
                     printf("errorhere\n");
@@ -2302,7 +2324,10 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
             }else{
                 if(index[R_LC] != NONE){
                     type_new = R_LC;
-                }else if(index[R_MT]!=NONE){
+                }else if(index[i_RMT] != NONE){
+                    type_new = i_RMT;
+                }
+                else if(index[R_MT]!=NONE){
                     type_new = R_MT;
                 }else if(index[P_MT]!=NONE){
                     type_new = P_MT;
@@ -2311,10 +2336,12 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
                 }
             }
         }else if(sub->bit_type == P_MT){
-            if(index[R_MT] != NONE){
-                type_new = R_MT;
+            if(index[i_RMT] != NONE){
+                type_new = i_RMT;
             }else if(index[P_LC]!=NONE){
                 type_new = P_LC;
+            }else if(index[R_MT] != NONE){
+                type_new = R_MT;
             }else if(index[R_LC]!=NONE){
                 type_new = R_LC;
             }else{
@@ -2323,6 +2350,8 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
         }else if(sub->bit_type == R_LC){
             if(index[P_LC] != NONE){
                 type_new = P_LC;
+            }else if(index[i_RMT] != NONE){
+                type_new = i_RMT;
             }else if(index[P_MT]!=NONE){
                 type_new = P_MT;
             }else if(index[R_MT]!=NONE){
@@ -2333,6 +2362,10 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
         }
         if(type_new!=NONE){
             sub->bit_type = type_new;
+            if(type_new == i_RMT){
+                sub->bit_type = R_MT;
+                return index[i_RMT];
+            }
             return index[type_new];
 
         }
@@ -2398,12 +2431,13 @@ Status services_2_write(struct ssd_info * ssd,unsigned int channel,unsigned int 
 
                             // 这里的作用是找到已完成update请求的读操作，并将其从总请求队列中移除并插入到channel上待处理请求队列中
                             sub=find_write_sub_request(ssd,channel,NONE);
-                            if(sub->lpn == 107523){
-                                printf("here to check why block is error\n");
-                            }
+                            
                             if(sub==NULL)
                             {
                                 break;
+                            }
+                            if(sub->lpn == 1639429){
+                                printf("here to check why ppn is same\n");
                             }
                             // 根据上一个子请求类型找到第二个sub
                             int other_type;
@@ -2436,14 +2470,14 @@ Status services_2_write(struct ssd_info * ssd,unsigned int channel,unsigned int 
                                         break;
                                     }
                                 } 
-                                if(sub->lpn == 799744 || (sub_other!=NULL && sub_other->lpn == 799744)){
-                                    printf("here to check why ppn not same\n");
-                                }
-                                if(sub->lpn == 1500162 || (sub_other!=NULL && sub_other->lpn == 1500162)){
+                                if(sub->lpn == 939440 || (sub_other!=NULL && sub_other->lpn == 939440)){
                                     printf("here to check why ppn not same\n");
                                 }
                             if(sub->current_state==SR_WAIT)
                             {
+                                if(sub->lpn == 1850378){
+                                    printf("here to check why RMT\n");
+                                }
                                 find_plane = get_plane_new(ssd,channel,chip_token,sub);
                                 
                                 if(find_plane == NONE){

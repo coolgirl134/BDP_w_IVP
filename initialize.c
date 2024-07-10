@@ -280,8 +280,8 @@ struct plane_info * initialize_plane(struct plane_info * p_plane,struct paramete
     p_plane->add_reg_ppn = -1;  //plane 里面的额外寄存器additional register -1 表示无数据
     p_plane->free_page=parameter->block_plane*parameter->page_block*BITS_PER_CELL;
     p_plane->free_LC=p_plane->free_MT=p_plane->free_page/2;
-    p_plane->free_page_num[R_LC]=p_plane->free_page_num[P_LC] = p_plane->free_page/BITS_PER_CELL;
-    p_plane->free_page_num[R_MT]=p_plane->free_page_num[P_MT] = p_plane->free_page/BITS_PER_CELL;
+    p_plane->free_page_num[R_LC]=p_plane->free_page_num[P_LC] = parameter->block_plane*parameter->page_block;
+    p_plane->free_page_num[R_MT]=p_plane->free_page_num[P_MT] = parameter->block_plane*parameter->page_block;
     SET_BIT(p_plane->bitmap_type,P_MT);
     SET_BIT(p_plane->bitmap_type,R_MT);
     p_plane->blk_head = (struct blk_info *)malloc(parameter->block_plane * sizeof(struct blk_info));

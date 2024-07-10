@@ -33,7 +33,7 @@ page capacity = 2048;
 subpage capacity = 512;
 t_PROG = 200000;             #the unit is ns
 t_DBSY = 50;
-t_BERS = 1500000;
+t_BERS = 15000000;          #QLC erase time is 15ms
 t_CLS = 12;
 t_CLH = 5;
 t_CS = 20;
@@ -46,7 +46,7 @@ t_DH = 5;
 t_WC = 25;
 t_WH = 10;
 t_ADL = 70;
-t_R = 20000;
+t_R = 20000;            #time of page from nand cell to register is 20us
 t_AR = 10;
 t_CLR = 10;
 t_RR = 20;
@@ -68,11 +68,11 @@ t_RST = 5000;
 erase limit=100000;                          #record the erasure number of block
 flash operating current=25000.0;               #unit is uA
 flash supply voltage=3.3;                    #voltage is 3.3V	
-dram active current=125000;                     #active current of DRAM£¬unit is uA
-dram standby current=50000;                     #standby current of DRAM£¬unit is uA 
-dram refresh current=5000;                     #refresh current of DRAM£¬unit is uA
-dram voltage=3.3;                      #working voltage of DRAM£¬unit is V    3.3V
-address mapping=1;                    #mapping schemes£¬1£ºpage£»2£ºblock£»3£ºfast
+dram active current=125000;                     #active current of DRAMï¿½ï¿½unit is uA
+dram standby current=50000;                     #standby current of DRAMï¿½ï¿½unit is uA 
+dram refresh current=5000;                     #refresh current of DRAMï¿½ï¿½unit is uA
+dram voltage=3.3;                      #working voltage of DRAMï¿½ï¿½unit is V    3.3V
+address mapping=1;                    #mapping schemesï¿½ï¿½1ï¿½ï¿½pageï¿½ï¿½2ï¿½ï¿½blockï¿½ï¿½3ï¿½ï¿½fast
 wear leveling=1;                      #record WL algorithm mode
 gc=1;                                 #record garbage collection mode
 overprovide=0.10;                     #reserved area percentage, unavailable to users
@@ -83,105 +83,213 @@ gc hard threshold=0.10;          #
 allocation=0;                   #0 for dynamic allocation, 1 for static allocation
 static_allocation=2;            #record static allocation mode like all static allocation modes0-6 in ICS2011 paper
 dynamic_allocation=0;           #record dynamic allocation mode, 0 for all dynamic, 1 for fixed channel and dynamic package, die, plane
-advanced command=0;             #advanced command indicator, 0 for no advanced command, bin number 00001 for random, 00010 for copyback, 00100 for two-plane-program, 01000 for interleave, 10000 for two-plane-read, 11111 for using all£»
+advanced command=0;             #advanced command indicator, 0 for no advanced command, bin number 00001 for random, 00010 for copyback, 00100 for two-plane-program, 01000 for interleave, 10000 for two-plane-read, 11111 for using allï¿½ï¿½
 advanced command priority=0;    #0 for interleave is prior to two-plane, 1 for two-plane is prior to interleave
 greed CB command=0;            #1 for using copyback command greedily, 0 for not
 greed MPW command=0;            #1 for using multi-plane write greedily, 0 for not
 aged=0;                         #1 for making SSD aged, 0 for keeping SSD non-aged
 aged ratio=0.7;                #If we need to make SSD aged, set the aged ratio in advance
 -----------------------simulation output----------------------
-the 0 channel, 0 die, 0 plane, 2048 blocks has :          1104 erase operations
-the 0 channel, 0 die, 1 plane, 2048 blocks has :             0 erase operations
-the 0 channel, 1 die, 0 plane, 2048 blocks has :            74 erase operations
-the 0 channel, 1 die, 1 plane, 2048 blocks has :             0 erase operations
-the 1 channel, 0 die, 0 plane, 2048 blocks has :           102 erase operations
-the 1 channel, 0 die, 1 plane, 2048 blocks has :             0 erase operations
-the 1 channel, 1 die, 0 plane, 2048 blocks has :             0 erase operations
-the 1 channel, 1 die, 1 plane, 2048 blocks has :             0 erase operations
+
+***************************BDP with invalid*******************
+the 0 channel, 0 die, 0 plane, 2048 blocks has :           341 erase operations
+the 0 channel, 0 die, 1 plane, 2048 blocks has :           195 erase operations
+the 0 channel, 1 die, 0 plane, 2048 blocks has :           211 erase operations
+the 0 channel, 1 die, 1 plane, 2048 blocks has :           252 erase operations
+the 1 channel, 0 die, 0 plane, 2048 blocks has :           277 erase operations
+the 1 channel, 0 die, 1 plane, 2048 blocks has :           106 erase operations
+the 1 channel, 1 die, 0 plane, 2048 blocks has :           146 erase operations
+the 1 channel, 1 die, 1 plane, 2048 blocks has :           179 erase operations
 ---------------------------latency array distribute---------------------------
-total latency num is 1504501
-0.917409
-0.009845
-0.009486
-0.008766
-0.008739
-0.008254
-0.007845
-0.007426
-0.012802
-0.009428
+total latency num is 1497174
+0.879860
+0.899865
+0.911690
+0.923432
+0.935031
+0.946180
+0.956698
+0.966545
+0.987432
+1.000000
+---------------------------tail latency---------------------------
+start is 21221970038 rang is 839847452
+0.007728
+0.014547
+0.021553
+0.029041
+0.036234
+0.044623
+0.053125
+0.060372
+0.072034
+0.084764
+0.097508
+0.113157
+0.124846
+0.135712
+0.145571
+0.155923
+0.166984
+0.177938
+0.189432
+0.199177
+0.207179
+0.215027
+0.221953
+0.228305
+0.236286
+0.243339
+0.251742
+0.264345
+0.278378
+0.286386
+0.294909
+0.301922
+0.309502
+0.318626
+0.327917
+0.336306
+0.346184
+0.354860
+0.368031
+0.377542
+0.387668
+0.395956
+0.405080
+0.413209
+0.421684
+0.432371
+0.440506
+0.447252
+0.454191
+0.462667
+0.469861
+0.477949
+0.486311
+0.495916
+0.506709
+0.515365
+0.523373
+0.531081
+0.539878
+0.548347
+0.556609
+0.563929
+0.571369
+0.579678
+0.587506
+0.595013
+0.602561
+0.610128
+0.618671
+0.627153
+0.637199
+0.644893
+0.651692
+0.657930
+0.665885
+0.673606
+0.680606
+0.695413
+0.705886
+0.721783
+0.754503
+0.779744
+0.787398
+0.794431
+0.842460
+0.860253
+0.870706
+0.879776
+0.889715
+0.899313
+0.908704
+0.917881
+0.928173
+0.938472
+0.946267
+0.953841
+0.966852
+0.978734
+0.989627
+1.000000
 
 
 ---------------------------static data---------------------------
 min lsn:             0
 max lsn: 4294942720
-read count:       2096254
-program count:      10824379
+read count:       7545373
+program count:      12351770
 ---------------------------read & program sub rate---------------------------
-total program sub:       6751701
-total read sub:       3854432
-read rate: 0.363415
-program rate: 0.636585
+total program sub:      31646082
+total read sub:      15372220
+read rate: 0.326941
+program rate: 0.673059
 ---------------------------read & program request rate---------------------------
 read request count:        308437
 write request count:       1722478
 read request rate: 0.151871
 write request rate: 0.848129
-read request average size:     49.838814
-write request average size:     18.382408
+read request average size:     49.841301
+write request average size:     18.384605
 ---------------------------read & program & total & tail latency---------------------------
-read request average response time: 19395808027
-write request average response time: 735650749
-total request average response time: 3569586650
-tail latency: 102192337046
+read request average response time: 29456126279
+write request average response time: 873601976
+read request total response time: 9085359221352100
+write request total response time: 1504760185074505
+total request average response time: 5214457230
+tail latency: 105206715286
 ---------------------------Space utilization rate---------------------------
-real written pagenums: 0
+free invalid pagenums: 241478
 ---------------------------WA---------------------------
-Write amplification: 1.002252
-buffer read hits:          7978
-buffer read miss:            28
-buffer write hits:       4941129
-buffer write miss:      20883063
-erase:          1387
-Read 0: count is 0.242496
-Read 1: count is 0.266508
-Read 2: count is 0.211654
-Read 3: count is 0.138887
-Read 4: count is 0.075751
-Read 5: count is 0.034560
-Read 6: count is 0.013892
-Read 7: count is 0.005026
-Read 8: count is 0.002025
-Read 9: count is 0.009201
-Write 0: count is 0.000000
-Write 1: count is 0.392690
-Write 2: count is 0.112110
-Write 3: count is 0.087289
-Write 4: count is 0.080701
-Write 5: count is 0.074073
-Write 6: count is 0.062921
-Write 7: count is 0.051792
-Write 8: count is 0.036682
-Write 9: count is 0.101742
+Write amplification: 0.577478
+buffer read hits:         12744
+buffer read miss:          2401
+buffer write hits:       4943184
+buffer write miss:      17730942
+erase: 3463
+direct erase: 3463
+rewrite page num:         13430
+Read 0: count is 0.936824
+Read 1: count is 0.007668
+Read 2: count is 0.005369
+Read 3: count is 0.004937
+Read 4: count is 0.004890
+Read 5: count is 0.004898
+Read 6: count is 0.004748
+Read 7: count is 0.004644
+Read 8: count is 0.004465
+Read 9: count is 0.021558
+Write 0: count is 0.949765
+Write 1: count is 0.004814
+Write 2: count is 0.003389
+Write 3: count is 0.003002
+Write 4: count is 0.002674
+Write 5: count is 0.002590
+Write 6: count is 0.002630
+Write 7: count is 0.002676
+Write 8: count is 0.002744
+Write 9: count is 0.025715
 READ
-281117
-308953
-245363
-161007
-87815
-40064
-16104
-5827
-2347
-10666
+7858650
+64323
+45035
+41413
+41022
+41087
+39829
+38954
+37455
+180840
 WRITE
-0
-455231
-129965
-101191
-93554
-85870
-72942
-60040
-42524
-117946
+7967208
+40385
+28429
+25183
+22432
+21729
+22066
+22450
+23015
+215711
