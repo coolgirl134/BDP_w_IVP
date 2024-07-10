@@ -41,7 +41,7 @@ int  main()
 #endif
 
     
-    for(int index_i = 0;index_i < 1;index_i ++){
+    for(int index_i = 4;index_i < 5;index_i ++){
         struct ssd_info *ssd;
         ssd=(struct ssd_info*)malloc(sizeof(struct ssd_info));
         alloc_assert(ssd,"ssd");
@@ -236,7 +236,7 @@ struct ssd_info *simulate(struct ssd_info *ssd)
             {
                 no_buffer_distribute(ssd);
             }
-            // printf("%d\n",t++);		
+            printf("%d\n",t++);		
         }
         sq++;
         process(ssd);    
@@ -391,7 +391,7 @@ int get_requests(struct ssd_info *ssd)
         if(time_t - ssd->current_time > 10000000){
             if(ssd->subs_w_head == NULL && ssd->channel_head[0].subs_r_head == NULL && ssd->channel_head[1].subs_r_head==NULL){
                 int move_flag = FAILURE;
-                printf("here %llu\n",time_t - ssd->current_time);
+                // printf("here %llu\n",time_t - ssd->current_time);
                 struct sub_request* sub = ssd->to_move_sub_head;
                 struct sub_request* q = ssd->to_move_sub_head;
                 while(sub!=NULL){
@@ -408,7 +408,7 @@ int get_requests(struct ssd_info *ssd)
                         if((ssd->channel_head[channel].current_state==CHANNEL_IDLE)||(ssd->channel_head[channel].next_state==CHANNEL_IDLE&&ssd->channel_head[i].next_state_predict_time<=ssd->current_time)){
                             if((ssd->channel_head[channel].chip_head[chip].current_state==CHIP_IDLE)||((ssd->channel_head[channel].chip_head[chip].next_state==CHIP_IDLE)&&(ssd->channel_head[channel].chip_head[chip].next_state_predict_time<=ssd->current_time))){
                                 int type = typeofdata(ssd,sub->lpn);
-                                if(type!=sub->bit_type){
+                                if(get_read_time_new(type/2,type%2*2) < get_read_time_new(sub->bit_type/2,sub->bit_type%2*2)){
                                     int predict_time = get_predict_time(type);
                                     if(ssd->current_time + predict_time > time_t) break;
                                     if(GET_BIT(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].bitmap_type,type) == 0){
@@ -417,7 +417,6 @@ int get_requests(struct ssd_info *ssd)
                                         unsigned int ppn = move_page(ssd,sub->location,&size,0,&type);
                                         struct local* loc = find_location(ssd,ppn);
                                         make_invalid(ssd,loc->channel,loc->chip,loc->die,loc->plane,loc->block,loc->page + 1);
-                                        ssd->free_invalid++;
                                         int prog_time = get_prog_time(ssd,type/2,ppn,invalid_program);
                                         ssd->current_time += prog_time;
                                         if(ssd->current_time > time_t){
@@ -1453,6 +1452,7 @@ void statistic_output(struct ssd_info *ssd)
     fprintf(ssd->statisticfile,"free invalid pagenums: %d\n",ssd->free_invalid);
     fprintf(ssd->statisticfile,"---------------------------WA---------------------------\n");
     fprintf(ssd->statisticfile,"Write amplification: %f\n",(float)((ssd->real_written + ssd->free_invalid + avlTreeCount(ssd->dram->buffer))*ssd->parameter->subpage_page )/ssd->total_write);
+    fprintf(ssd->statisticfile,"Write amplification: %u\n",ssd->real_written);
     fprintf(ssd->statisticfile,"buffer read hits: %13d\n",ssd->dram->buffer->read_hit);
     fprintf(ssd->statisticfile,"buffer read miss: %13d\n",ssd->dram->buffer->read_miss_hit);
     fprintf(ssd->statisticfile,"buffer write hits: %13d\n",ssd->dram->buffer->write_hit);

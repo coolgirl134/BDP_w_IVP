@@ -2436,9 +2436,6 @@ Status services_2_write(struct ssd_info * ssd,unsigned int channel,unsigned int 
                             {
                                 break;
                             }
-                            if(sub->lpn == 1639429){
-                                printf("here to check why ppn is same\n");
-                            }
                             // 根据上一个子请求类型找到第二个sub
                             int other_type;
                             int count = 0;
@@ -2470,14 +2467,8 @@ Status services_2_write(struct ssd_info * ssd,unsigned int channel,unsigned int 
                                         break;
                                     }
                                 } 
-                                if(sub->lpn == 939440 || (sub_other!=NULL && sub_other->lpn == 939440)){
-                                    printf("here to check why ppn not same\n");
-                                }
                             if(sub->current_state==SR_WAIT)
                             {
-                                if(sub->lpn == 1850378){
-                                    printf("here to check why RMT\n");
-                                }
                                 find_plane = get_plane_new(ssd,channel,chip_token,sub);
                                 
                                 if(find_plane == NONE){

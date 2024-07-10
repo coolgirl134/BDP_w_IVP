@@ -637,7 +637,7 @@ Status find_open_block_for_2_write(struct ssd_info *ssd,unsigned int channel,uns
         // 当前类型的空闲页数量需要减1
         ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[type]--;
         if(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[type] <= 0){
-            printf("free page num here %u\n",ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[type]);
+            // printf("free page num here %u\n",ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[type]);
             ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_page_num[type] = 0;
         }
         // 当写入的是LCpage，则将MTFULL unset
@@ -664,15 +664,12 @@ Status find_open_block_for_2_write(struct ssd_info *ssd,unsigned int channel,uns
         int count_CSB = 0,count_TSB = 0,count_MSB = 0;
         int page_block = ssd->parameter->page_block * BITS_PER_CELL;
         for(int i = 0;i < ssd->parameter->block_plane;i ++){
-            if(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].blk_head[i].program_type==NONE){
-                printf("here\n");
-            }
             for(int j = 0;j < page_block;j ++){
                 if(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].blk_head[i].page_head[j].lpn == NONE){
                     int ans = j % BITS_PER_CELL;
                     if(ans == LSB_PAGE){
                         count_LSB++;
-                        printf("block is %d\n",i);
+                        // printf("block is %d\n",i);
                     }else if(ans == CSB_PAGE){
                         count_CSB++;
                     }else if(ans == MSB_PAGE){
@@ -980,9 +977,6 @@ struct ssd_info *get_ppn_for_2_write(struct ssd_info *ssd,unsigned int channel,u
 #endif
 
     lpn=sub->lpn;
-    if(lpn == 107523){
-        printf("here\n");
-    }
     if(invalid_flag == FAILURE){
         int typenew =find_open_block_for_2_write(ssd,channel,chip,die,plane,sub->bit_type) ;
         if(typenew!= sub->bit_type){

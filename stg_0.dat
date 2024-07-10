@@ -92,135 +92,135 @@ aged ratio=0.7;                #If we need to make SSD aged, set the aged ratio 
 -----------------------simulation output----------------------
 
 ***************************BDP with invalid*******************
-the 0 channel, 0 die, 0 plane, 2048 blocks has :           341 erase operations
-the 0 channel, 0 die, 1 plane, 2048 blocks has :           195 erase operations
-the 0 channel, 1 die, 0 plane, 2048 blocks has :           211 erase operations
-the 0 channel, 1 die, 1 plane, 2048 blocks has :           252 erase operations
-the 1 channel, 0 die, 0 plane, 2048 blocks has :           277 erase operations
-the 1 channel, 0 die, 1 plane, 2048 blocks has :           106 erase operations
-the 1 channel, 1 die, 0 plane, 2048 blocks has :           146 erase operations
-the 1 channel, 1 die, 1 plane, 2048 blocks has :           179 erase operations
+the 0 channel, 0 die, 0 plane, 2048 blocks has :           351 erase operations
+the 0 channel, 0 die, 1 plane, 2048 blocks has :           193 erase operations
+the 0 channel, 1 die, 0 plane, 2048 blocks has :           212 erase operations
+the 0 channel, 1 die, 1 plane, 2048 blocks has :           247 erase operations
+the 1 channel, 0 die, 0 plane, 2048 blocks has :           269 erase operations
+the 1 channel, 0 die, 1 plane, 2048 blocks has :           112 erase operations
+the 1 channel, 1 die, 0 plane, 2048 blocks has :           142 erase operations
+the 1 channel, 1 die, 1 plane, 2048 blocks has :           189 erase operations
 ---------------------------latency array distribute---------------------------
 total latency num is 1497174
-0.879860
-0.899865
-0.911690
-0.923432
-0.935031
-0.946180
-0.956698
-0.966545
-0.987432
+0.879861
+0.899855
+0.911674
+0.923424
+0.935016
+0.946156
+0.956686
+0.966547
+0.987426
 1.000000
 ---------------------------tail latency---------------------------
-start is 21221970038 rang is 839847452
+start is 21229211013 rang is 840115547
 0.007728
-0.014547
-0.021553
-0.029041
-0.036234
-0.044623
-0.053125
-0.060372
-0.072034
-0.084764
-0.097508
-0.113157
-0.124846
-0.135712
-0.145571
-0.155923
-0.166984
-0.177938
-0.189432
-0.199177
-0.207179
-0.215027
-0.221953
-0.228305
-0.236286
-0.243339
-0.251742
-0.264345
-0.278378
-0.286386
-0.294909
-0.301922
-0.309502
-0.318626
-0.327917
-0.336306
-0.346184
-0.354860
-0.368031
-0.377542
+0.014534
+0.021533
+0.028974
+0.036154
+0.044556
+0.053052
+0.060359
+0.072021
+0.084738
+0.097421
+0.113110
+0.124886
+0.135706
+0.145524
+0.155850
+0.166951
+0.177958
+0.189406
+0.199124
+0.207085
+0.214987
+0.221853
+0.228231
+0.236173
+0.243259
+0.251581
+0.264211
+0.278311
+0.286353
+0.294888
+0.301895
+0.309429
+0.318539
+0.327923
+0.336212
+0.345857
+0.354867
+0.367964
+0.377502
 0.387668
-0.395956
-0.405080
-0.413209
-0.421684
-0.432371
-0.440506
-0.447252
-0.454191
-0.462667
-0.469861
-0.477949
-0.486311
-0.495916
-0.506709
-0.515365
-0.523373
-0.531081
-0.539878
-0.548347
-0.556609
-0.563929
-0.571369
-0.579678
-0.587506
-0.595013
-0.602561
-0.610128
-0.618671
-0.627153
-0.637199
-0.644893
-0.651692
-0.657930
-0.665885
-0.673606
-0.680606
-0.695413
-0.705886
-0.721783
-0.754503
-0.779744
-0.787398
-0.794431
-0.842460
-0.860253
-0.870706
-0.879776
-0.889715
-0.899313
-0.908704
-0.917881
-0.928173
-0.938472
-0.946267
-0.953841
-0.966852
-0.978734
-0.989627
+0.396017
+0.405000
+0.413349
+0.421584
+0.432257
+0.440419
+0.447172
+0.454265
+0.462407
+0.469687
+0.477916
+0.485931
+0.495989
+0.506555
+0.515245
+0.523120
+0.531021
+0.539817
+0.547926
+0.556495
+0.563862
+0.571336
+0.579625
+0.587326
+0.594973
+0.602434
+0.609988
+0.618571
+0.626953
+0.637005
+0.644759
+0.651579
+0.657904
+0.665825
+0.673493
+0.680552
+0.695534
+0.705806
+0.721569
+0.754156
+0.779684
+0.787351
+0.794398
+0.842567
+0.860187
+0.870659
+0.879836
+0.889588
+0.899319
+0.908744
+0.917934
+0.928100
+0.938352
+0.946140
+0.953868
+0.966752
+0.978487
+0.989474
 1.000000
 
 
 ---------------------------static data---------------------------
 min lsn:             0
 max lsn: 4294942720
-read count:       7545373
-program count:      12351770
+read count:       7545878
+program count:      12338980
 ---------------------------read & program sub rate---------------------------
 total program sub:      31646082
 total read sub:      15372220
@@ -231,26 +231,26 @@ read request count:        308437
 write request count:       1722478
 read request rate: 0.151871
 write request rate: 0.848129
-read request average size:     49.841301
-write request average size:     18.384605
+read request average size:     49.841908
+write request average size:     18.385159
 ---------------------------read & program & total & tail latency---------------------------
-read request average response time: 29456126279
-write request average response time: 873601976
-read request total response time: 9085359221352100
-write request total response time: 1504760185074505
-total request average response time: 5214457230
-tail latency: 105206715286
+read request average response time: 29474027756
+write request average response time: 874296706
+read request total response time: 9090880699026559
+write request total response time: 1505956842236377
+total request average response time: 5217765165
+tail latency: 105240765787
 ---------------------------Space utilization rate---------------------------
-free invalid pagenums: 241478
+free invalid pagenums: 228556
 ---------------------------WA---------------------------
-Write amplification: 0.577478
+Write amplification: 0.574298
 buffer read hits:         12744
 buffer read miss:          2401
 buffer write hits:       4943184
 buffer write miss:      17730942
-erase: 3463
-direct erase: 3463
-rewrite page num:         13430
+erase: 3414
+direct erase: 3414
+rewrite page num:           264
 Read 0: count is 0.936824
 Read 1: count is 0.007668
 Read 2: count is 0.005369
