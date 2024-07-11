@@ -41,7 +41,7 @@ int  main()
 #endif
 
     
-    for(int index_i = 4;index_i < 5;index_i ++){
+    for(int index_i = 1;index_i < 2;index_i ++){
         struct ssd_info *ssd;
         ssd=(struct ssd_info*)malloc(sizeof(struct ssd_info));
         alloc_assert(ssd,"ssd");
@@ -407,12 +407,12 @@ int get_requests(struct ssd_info *ssd)
                     }else{
                         if((ssd->channel_head[channel].current_state==CHANNEL_IDLE)||(ssd->channel_head[channel].next_state==CHANNEL_IDLE&&ssd->channel_head[i].next_state_predict_time<=ssd->current_time)){
                             if((ssd->channel_head[channel].chip_head[chip].current_state==CHIP_IDLE)||((ssd->channel_head[channel].chip_head[chip].next_state==CHIP_IDLE)&&(ssd->channel_head[channel].chip_head[chip].next_state_predict_time<=ssd->current_time))){
-                                int type = typeofdata(ssd,sub->lpn);
+                                int type = typeofdata(ssd,sub->lpn,channel,chip);
                                 if(get_read_time_new(type/2,type%2*2) < get_read_time_new(sub->bit_type/2,sub->bit_type%2*2)){
                                     int predict_time = get_predict_time(type);
                                     if(ssd->current_time + predict_time > time_t) break;
                                     if(GET_BIT(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].bitmap_type,type) == 0){
-                                        
+                                        ssd->erease_count4++;
                                         unsigned int size;
                                         unsigned int ppn = move_page(ssd,sub->location,&size,0,&type);
                                         struct local* loc = find_location(ssd,ppn);
@@ -839,7 +839,7 @@ struct ssd_info *distribute(struct ssd_info *ssd)
                             else
                             {
                                 sub=creat_sub_request(ssd,lpn,sub_size,0,req,req->operation);
-                                int type = typeofdata(ssd,sub->lpn);
+                                int type = typeofdata(ssd,sub->lpn,0,0);
                                 int type_sub = sub->ppn%BITS_PER_CELL;
                                 type_sub = ssd->channel_head[sub->location->channel].chip_head[sub->location->chip].die_head[sub->location->die].plane_head[sub->location->plane].blk_head[sub->location->block].program_type*2 + type_sub/2;
                                 if(type != type_sub){
@@ -1308,11 +1308,16 @@ void statistic_output(struct ssd_info *ssd)
     }
     qsort(latency,latency_index+1,sizeof(unsigned long long),compareULL);
     int k_index = latency_index / 10 * 9;
-    range = (ssd->tail_latency - latency[k_index])/100;
+    // range = (ssd->tail_latency - latency[k_index])/100;
+    range = 100000000;
     printf("range is %llu\n",range);
-    for(int i = k_index;i <= latency_index;i++){
-        int j = (latency[i] - latency[k_index])/range;
-        tail_latency_array[j]++;
+    for(int i = 0;i <= latency_index;i++){
+        int j = latency[i]/range;
+        if(j >= 100){
+            tail_latency_array[99]++;
+        }else{
+            tail_latency_array[j]++;
+        }
     }
     fprintf(ssd->outputfile,"---------------------------latency array distribute---------------------------\n");
     fprintf(ssd->outputfile,"total latency num is %d\n",latency_index);
@@ -1401,7 +1406,7 @@ void statistic_output(struct ssd_info *ssd)
     fprintf(ssd->statisticfile,"---------------------------tail latency---------------------------\n");	
     fprintf(ssd->statisticfile,"start is %llu rang is %llu\n",latency[k_index],range);
     for(int i = 0;i < 100; i++){
-        fprintf(ssd->statisticfile,"%f\n",(float)tail_latency_array[i]/(latency_index - k_index));
+        fprintf(ssd->statisticfile,"%f\n",(float)tail_latency_array[i]/latency_index);
     }
     fprintf(ssd->statisticfile,"\n");
     fprintf(ssd->statisticfile,"\n");
@@ -1452,7 +1457,12 @@ void statistic_output(struct ssd_info *ssd)
     fprintf(ssd->statisticfile,"free invalid pagenums: %d\n",ssd->free_invalid);
     fprintf(ssd->statisticfile,"---------------------------WA---------------------------\n");
     fprintf(ssd->statisticfile,"Write amplification: %f\n",(float)((ssd->real_written + ssd->free_invalid + avlTreeCount(ssd->dram->buffer))*ssd->parameter->subpage_page )/ssd->total_write);
-    fprintf(ssd->statisticfile,"Write amplification: %u\n",ssd->real_written);
+    fprintf(ssd->statisticfile,"real written: %u\n",ssd->real_written);
+    fprintf(ssd->statisticfile,"process 2 write: %u\n",ssd->erase_count2);
+    fprintf(ssd->statisticfile,"process invalid: %u\n",ssd->erase_count1);
+    fprintf(ssd->statisticfile,"gc invalid: %u\n",ssd->erease_count3);
+    fprintf(ssd->statisticfile,"update written: %u\n",ssd->update_write);
+    fprintf(ssd->statisticfile,"read move invalid: %u\n",ssd->erease_count4);
     fprintf(ssd->statisticfile,"buffer read hits: %13d\n",ssd->dram->buffer->read_hit);
     fprintf(ssd->statisticfile,"buffer read miss: %13d\n",ssd->dram->buffer->read_miss_hit);
     fprintf(ssd->statisticfile,"buffer write hits: %13d\n",ssd->dram->buffer->write_hit);

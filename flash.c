@@ -74,6 +74,7 @@ Status allocate_location(struct ssd_info * ssd ,struct sub_request *sub_req)
                 update->size=size(update->state);
                 update->ppn = ssd->dram->map->map_entry[sub_req->lpn].pn;
                 update->operation = READ;
+                ssd->update_write++;
 
                 if (ssd->channel_head[location->channel].subs_r_tail!=NULL)            /*产生新的读请求，并且挂到channel的subs_r_tail队列尾*/
                 {
@@ -335,11 +336,11 @@ struct ssd_info * insert2buffer(struct ssd_info *ssd,unsigned int lpn,int state,
                 sub_req_size=size(ssd->dram->buffer->buffer_tail->stored);
                 sub_req_lpn=ssd->dram->buffer->buffer_tail->group;
                 sub_req=creat_sub_request(ssd,sub_req_lpn,sub_req_size,sub_req_state,req,WRITE);
-                if(ssd->dram->map->map_entry[sub_req->lpn].pn!=0){
-                    // 验证是否创建的子请求产生的更新写和我们计算的一样
-                    ssd->update_write++;
-                    // 该数值和total write相加要等有real written
-                }
+                // if(ssd->dram->map->map_entry[sub_req->lpn].pn!=0){
+                //     // 验证是否创建的子请求产生的更新写和我们计算的一样
+                //     ssd->update_write++;
+                //     // 该数值和total write相加要等有real written
+                // }
                 sub_req->lsn = req->lsn;
                 sub_req->req_id = req->id;
                 sub_req->req_begin_time = req->time;
@@ -488,7 +489,7 @@ struct ssd_info * insert2buffer(struct ssd_info *ssd,unsigned int lpn,int state,
                         sub_req_size=size(ssd->dram->buffer->buffer_tail->stored);
                         sub_req_lpn=ssd->dram->buffer->buffer_tail->group;
                         sub_req=creat_sub_request(ssd,sub_req_lpn,sub_req_size,sub_req_state,req,WRITE);
-                        ssd->update_write++;
+                        // ssd->update_write++;
                         sub_req->lsn = req->lsn;
                         sub_req->req_begin_time = req->time;
                         if(req!=NULL)           
@@ -725,7 +726,7 @@ Status find_open_block(struct ssd_info *ssd,unsigned int channel,unsigned int ch
         if(type==CSB_PAGE && ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].free_LC == 0){
             bitmap_table[index] = LC_FULL;
         }
-        ssd->real_written++;
+        // ssd->real_written++;
         return type;
     }
     else
@@ -1173,19 +1174,22 @@ Status write_page(struct ssd_info *ssd,unsigned int channel,unsigned int chip,un
     return SUCCESS;
 }
 
-int typeofdata(struct ssd_info* ssd,unsigned int lpn){
+int typeofdata(struct ssd_info* ssd,unsigned int lpn,int channel,int chip){
     if(ssd->dram->map->map_entry[lpn].write_count > HOTPROG){
         // 冷读热写
+        if(find_first_bit(ssd->channel_head[channel].chip_head[chip].plane_bitmap,ssd->parameter->plane_die*ssd->parameter->die_chip) < ssd->parameter->plane_die*ssd->parameter->die_chip){
+            return R_MT;
+        }
         return R_LC;
     }else if(ssd->dram->map->map_entry[lpn].read_count > HOTREAD){
         // 热读热写
+        if(find_first_bit(ssd->channel_head[channel].chip_head[chip].plane_bitmap,ssd->parameter->plane_die*ssd->parameter->die_chip) < ssd->parameter->plane_die*ssd->parameter->die_chip){
+            return R_MT;
+        }
         return P_LC;
     }else if(ssd->dram->map->map_entry[lpn].read_count <= HOTREAD && ssd->dram->map->map_entry[lpn].write_count <= HOTPROG){
         // 冷读冷写
         return P_MT;
-    }else{
-        // 热读冷写
-        return R_MT;
     }
 }
 
@@ -1311,7 +1315,7 @@ struct sub_request * creat_sub_request(struct ssd_info * ssd,unsigned int lpn,in
         sub->state=state;
         sub->begin_time=ssd->current_time;
         // 在这里完成决定数据的存储类型：R_LC R_MT
-        sub->bit_type = typeofdata(ssd,lpn);
+        // sub->bit_type = typeofdata(ssd,lpn);
         
         // 在这里进行plane的分配
         if (allocate_location(ssd ,sub)==ERROR)
@@ -2204,7 +2208,7 @@ void process_invalid(struct ssd_info* ssd,int plane){
     }else{
         printf("find LC page error\n");
     }
-    ssd->real_written-=2;
+    // ssd->real_written-=2;
     int cell;
     cell = ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].blk_head[block].LCMT_number[LC] + 1;
     ssd->channel_head[loc->channel].chip_head[loc->chip].die_head[loc->die].plane_head[loc->plane].blk_head[block].LCMT_number[LC] = cell;
@@ -2384,6 +2388,28 @@ int get_plane_new(struct ssd_info* ssd,unsigned int channel,unsigned int chip_to
     return NONE;
 }
 
+int get_type(struct ssd_info* ssd,struct sub_request* sub1,struct sub_request* sub2){
+    int prog_time1 = ssd->dram->map->map_entry[sub1->lpn].write_count ;
+    int prog_time2 = ssd->dram->map->map_entry[sub2->lpn].write_count ;
+    int read_time1 = ssd->dram->map->map_entry[sub1->lpn].read_count ;
+    int read_time2 = ssd->dram->map->map_entry[sub1->lpn].read_count ;
+    prog_time1 = prog_time1 > prog_time2? prog_time1:prog_time2;
+    read_time1 = read_time1 > read_time2?read_time1:read_time2;
+    if(prog_time1 > HOTPROG){
+        // 冷读热写
+        return R_LC;
+    }else if(read_time1 > HOTREAD){
+        // 热读热写
+        return P_LC;
+    }else if(read_time1 <= HOTREAD && prog_time1 <= HOTPROG){
+        // 冷读冷写
+        return P_MT;
+    }else{
+        // 热读冷写
+        return R_MT;
+    }
+}
+
 /********************
   写子请求的处理函数
  *********************/
@@ -2436,45 +2462,60 @@ Status services_2_write(struct ssd_info * ssd,unsigned int channel,unsigned int 
                             {
                                 break;
                             }
+                            sub->bit_type = typeofdata(ssd,sub->lpn,channel,chip_token);
                             // 根据上一个子请求类型找到第二个sub
                             int other_type;
                             int count = 0;
                             sub_other = find_write_sub_request(ssd,channel,sub->bit_type);
-                                if(sub_other == NULL){
-                                    struct sub_request* q=NULL;
-                                    switch (sub->bit_type)
-                                    {
-                                    case P_MT:
-                                        // 表示可以和任何page结合
-                                        other_type = NONE;
-                                        sub_other = find_write_sub_request(ssd,channel,other_type);
-                                        break;
-                                    case R_LC:
-                                        other_type = P_LC;
-                                        sub_other = find_write_sub_request(ssd,channel,other_type);
-                                        break;
-                                    case R_MT:
-                                        other_type = P_LC;
-                                        sub_other = find_write_sub_request(ssd,channel,other_type);
-                                        break;
-                                    case P_LC:
-                                        other_type = R_LC;
-                                        sub_other = find_write_sub_request(ssd,channel,other_type);
-                                        if(sub_other == NULL){
-                                            sub_other = find_write_sub_request(ssd,channel,R_MT);
-                                        }
-                                    default:
-                                        break;
+                            if(sub_other == NULL){
+                                struct sub_request* q=NULL;
+                                switch (sub->bit_type)
+                                {
+                                case P_MT:
+                                    // 表示可以和任何page结合
+                                    other_type = NONE;
+                                    sub_other = find_write_sub_request(ssd,channel,other_type);
+                                    break;
+                                case R_LC:
+                                    other_type = P_LC;
+                                    sub_other = find_write_sub_request(ssd,channel,other_type);
+                                    break;
+                                case R_MT:
+                                    other_type = P_LC;
+                                    sub_other = find_write_sub_request(ssd,channel,other_type);
+                                    break;
+                                case P_LC:
+                                    other_type = R_LC;
+                                    sub_other = find_write_sub_request(ssd,channel,other_type);
+                                    if(sub_other == NULL){
+                                        sub_other = find_write_sub_request(ssd,channel,R_MT);
                                     }
-                                } 
-                            if(sub->current_state==SR_WAIT)
+                                default:
+                                    break;
+                                }
+                            } 
+                            // 直接挑选最好的类型
+                            if(sub_other == NULL){
+                                    sub_other = find_write_sub_request(ssd,channel,NONE);
+                                    if(sub_other != NULL){
+                                        int type_new = get_type(ssd,sub,sub_other);
+                                        sub->bit_type = type_new;
+                                        sub_other->bit_type = type_new;
+                                    }else{
+                                        printf("here\n");
+                                    }
+                            }
+
+                            if(sub->current_state==SR_WAIT && (sub_other==NULL || (sub_other!=NULL && sub_other->current_state == SR_WAIT)))
                             {
+                                
                                 find_plane = get_plane_new(ssd,channel,chip_token,sub);
                                 
                                 if(find_plane == NONE){
                                     printf("error in findplane\n");
                                     while(1){}
                                 }
+                                
                                 
                                  
                                 struct local* loc = get_loc_by_plane(ssd,find_plane);
@@ -4814,10 +4855,11 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request * sub1,struct sub_r
                      *******************************************************************************************************/
                     prog_time = get_prog_time(ssd,sub->bit_type/2,sub1->ppn,sub1->invalid_program);
                     sub = sub1;
+                    
                     ssd->channel_head[location->channel].prog_sub_nums++;
                     ssd->channel_head[location->channel].chip_head[location->chip].prog_sub_nums++;	
                     while(sub != NULL){
-                        
+                        ssd->real_written++;
                         ssd->request_queue->done_sub++;
                         sub->current_time=ssd->current_time;
                         sub->current_state=SR_W_TRANSFER;
