@@ -566,7 +566,15 @@ Status find_open_block_for_2_write(struct ssd_info *ssd,unsigned int channel,uns
         }
         if(flag == FAILURE){
             // 如果实在找不到，则转换类型
-            type = find_first_bit(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].bitmap_type,BITS_PER_CELL);
+            
+            if(GET_BIT(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].bitmap_type,P_LC) == 0){
+                type = P_LC;
+            }else if(GET_BIT(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].bitmap_type,R_LC) == 0){
+                type = R_LC;
+            }else{
+                type = find_next_zero_bit(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].bitmap_type,BITS_PER_CELL,0);
+            }
+            bit_type = type %2;
         }
         // 再执行以下看看是否还有剩余的待编程的RMT位置，如果没有置为满
         get_index = find_first_bit(ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].cell_bitmap,cell_max);

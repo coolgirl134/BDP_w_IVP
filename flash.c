@@ -1175,7 +1175,7 @@ Status write_page(struct ssd_info *ssd,unsigned int channel,unsigned int chip,un
 }
 
 int typeofdata(struct ssd_info* ssd,unsigned int lpn,int channel,int chip){
-    if(ssd->dram->map->map_entry[lpn].write_count > HOTPROG){
+    if(ssd->dram->map->map_entry[lpn].read_count <= HOTREAD && ssd->dram->map->map_entry[lpn].write_count > HOTPROG){
         // 冷读热写
         if(find_first_bit(ssd->channel_head[channel].chip_head[chip].plane_bitmap,ssd->parameter->plane_die*ssd->parameter->die_chip) < ssd->parameter->plane_die*ssd->parameter->die_chip){
             return R_MT;
@@ -1189,7 +1189,12 @@ int typeofdata(struct ssd_info* ssd,unsigned int lpn,int channel,int chip){
         return P_LC;
     }else if(ssd->dram->map->map_entry[lpn].read_count <= HOTREAD && ssd->dram->map->map_entry[lpn].write_count <= HOTPROG){
         // 冷读冷写
+        if(find_first_bit(ssd->channel_head[channel].chip_head[chip].plane_bitmap,ssd->parameter->plane_die*ssd->parameter->die_chip) < ssd->parameter->plane_die*ssd->parameter->die_chip){
+            return R_MT;
+        }
         return P_MT;
+    }else{
+        return R_MT;
     }
 }
 
